@@ -7,7 +7,6 @@ using namespace std;
 vector<vector<int>> t = { };
 vector<int> q = {};
 int board[9][9] = { 0 };
-int change_to[9] = { 0 };
 vector<int> coordinates_of_zeros = {};
 
 void print_result()
@@ -81,17 +80,14 @@ void CSP()
     check_possible_solutions();
 }
 
-int solving_or_check_for_number_of_solves(bool check_or_solve) {
+int solving_or_check_for_number_of_solves() {
     bool a = 1;
     int b = 0;
     int c = 1;
     int e = 0;
     for (int i = 0; i < coordinates_of_zeros.size(); i++) {
-        cout << i << endl;
         for (int j = c; j < 10; j++) {
-            cout <<"    "<< j << endl;
             for (int y = 0; y < 9; y++) {
-                cout << "       " << y << endl;
                 if ((board[y][(coordinates_of_zeros.at(i) % 10)] == j) || (board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][y] == j) || (board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10) - ((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10) % 3 + (y - y % 3) / 3][(coordinates_of_zeros.at(i) % 10) - (coordinates_of_zeros.at(i) % 10) % 3 + y % 3] == j)) {
                     a = 0;
                     break;
@@ -104,23 +100,11 @@ int solving_or_check_for_number_of_solves(bool check_or_solve) {
             a = 1;
         }
         if (b > 0) {
-            if (i != coordinates_of_zeros.size() - 2) {
                 board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] = b; b = 0; c = 1; CSP;
-            }
-            else if (check_or_solve) {
-                i--; c = board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] + 1; board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] = 0;i--; e++; b = 0;
-            }
         }
-        else if (i != 0) {
+        else {
             i--; c = board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] + 1; board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] = 0;i--; b = 0; CSP;
         }
-        else if (check_or_solve) {
-            for (int p = 0; p < coordinates_of_zeros.size(); p++) {
-                board[((coordinates_of_zeros.at(p) - coordinates_of_zeros.at(p) % 10) / 10)][(coordinates_of_zeros.at(p) % 10)] = 0;
-            }
-            return e;
-        }
-
     }
 }
 
@@ -151,7 +135,7 @@ void prt1()
     for (int i = 0; i < 3; i++) {
         diagonal(i * 3);
     }
-    solving_or_check_for_number_of_solves(0);
+    solving_or_check_for_number_of_solves();
 }
 
 int main(){
