@@ -1,0 +1,86 @@
+#include <iostream>
+#include <cstdlib>
+#include <chrono>
+#include <vector>
+using namespace std;
+
+int board[9][9] = { 0 };
+int change_to[9] = { 0 };
+vector<int> coordinates_of_zeros = {};
+
+void print_result()
+{
+    cout << "-------------------------------" << endl;
+    for (int i = 0; i < 9; i++) {
+        cout << "| ";
+        for (int j = 0; j < 9; j++) {
+            if (board[i][j] != 0) {
+                cout << board[i][j] << " ";
+            }
+            else {
+                cout << "* ";
+            }
+            if (j % 3 == 2) {
+                cout << "| ";
+            }
+            else {
+                cout << " ";
+            }
+        }
+        cout << endl;
+        if (i % 3 == 2) { cout << "-------------------------------" << endl; }
+    }
+}
+
+void input_sudoku() {
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            cin >> board[i][j];
+        }
+    }
+}
+
+int solving() {
+    bool a = 1;
+    int b = 0;
+    int c = 1;
+    int e = 0;
+    for (int i = 0; i < coordinates_of_zeros.size(); i++) {
+        for (int j = c; j < 10; j++) {
+            for (int y = 0; y < 9; y++) {
+                if ((board[y][(coordinates_of_zeros.at(i) % 10)] == j) || (board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][y] == j) || (board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10) - ((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10) % 3 + (y - y % 3) / 3][(coordinates_of_zeros.at(i) % 10) - (coordinates_of_zeros.at(i) % 10) % 3 + y % 3] == j)) {
+                    a = 0;
+                    break;
+                }
+            }
+            if (a == 1) {
+                b = j;
+                break;
+            }
+            a = 1;
+        }
+        if (b > 0) {
+                board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] = b; b = 0; c = 1;
+        }
+        else {
+            i--; c = board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] + 1; board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] = 0;i--; b = 0;
+        }
+
+    }
+}
+
+void remembering_zeroes() {
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            if (board[i][j] == 0) {
+                coordinates_of_zeros.push_back(i * 10 + j);
+            }
+        }
+    }
+}
+
+int main() {
+  input_sudoku();
+  remembering_zeroes();
+  solving_or_check_for_number_of_solves();
+}
