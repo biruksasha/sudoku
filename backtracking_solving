@@ -80,7 +80,9 @@ void remembering_zeroes() {
 }
 
 int main() {
-  input_sudoku();
-  remembering_zeroes();
-  solving_or_check_for_number_of_solves();
+    srand(time(NULL));
+    input_sudoku();
+    remembering_zeroes();
+    solving();
+    print_result();
 }
