@@ -1,0 +1,159 @@
+#include <iostream>
+#include <cstdlib>
+#include <chrono>
+#include <vector>
+using namespace std;
+
+vector<vector<int>> t = { };
+vector<int> q = {};
+int board[9][9] = { 0 };
+int change_to[9] = { 0 };
+vector<int> coordinates_of_zeros = {};
+
+void print_result()
+{
+    cout << "-------------------------------" << endl;
+    for (int i = 0; i < 9; i++) {
+        cout << "| ";
+        for (int j = 0; j < 9; j++) {
+            if (board[i][j] != 0) {
+                cout << board[i][j] << " ";
+            }
+            else {
+                cout << "* ";
+            }
+            if (j % 3 == 2) {
+                cout << "| ";
+            }
+            else {
+                cout << " ";
+            }
+        }
+        cout << endl;
+        if (i % 3 == 2) { cout << "-------------------------------" << endl; }
+    }
+}
+
+
+void write_possible_solutions() {
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            if (board[i][j] == 0) {
+                q.push_back(i * 10 + j);
+                t.push_back({ 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+            }
+        }
+    }
+}
+
+void check_possible_solutions() {
+    int a = 0;
+    bool b = 0;
+    for (int i = 0; i < q.size(); i++) {
+        for (int j = 0; j < 9; j++) {
+            if (find(t[i].begin(), t[i].end(), board[j][(q.at(i) % 10)]) != t[i].end()) {
+                a = find(t[i].begin(), t[i].end(), board[j][(q.at(i) % 10)]) - t[i].begin();
+                t[i].erase(t[i].begin() + a);
+                b = 1;
+            }
+            else if ((find(t[i].begin(), t[i].end(), board[((q.at(i) - q.at(i) % 10) / 10)][j]) != t[i].end())) {
+                a = find(t[i].begin(), t[i].end(), board[((q.at(i) - q.at(i) % 10) / 10)][j]) - t[i].begin();
+                t[i].erase(t[i].begin() + a);
+                b = 1;
+            }
+            else if (find(t[i].begin(), t[i].end(), board[((q.at(i) - q.at(i) % 10) / 10) - ((q.at(i) - q.at(i) % 10) / 10) % 3 + (j - j % 3) / 3][(q.at(i) % 10) - (q.at(i) % 10) % 3 + j % 3]) != t[i].end()) {
+                a = find(t[i].begin(), t[i].end(), board[((q.at(i) - q.at(i) % 10) / 10) - ((q.at(i) - q.at(i) % 10) / 10) % 3 + (j - j % 3) / 3][(q.at(i) % 10) - (q.at(i) % 10) % 3 + j % 3]) - t[i].begin();
+                t[i].erase(t[i].begin() + a);
+                b = 1;
+            }
+        }
+    }
+    for (int i = 0; i < q.size(); i++) {
+        if (t[i].size() == 1)
+            board[((q.at(i) - q.at(i) % 10) / 10)][(q.at(i) % 10)] = t[i][0];
+    }
+    if (b) { check_possible_solutions(); }
+}
+
+void CSP()
+{
+    write_possible_solutions();
+    check_possible_solutions();
+}
+
+int solving_or_check_for_number_of_solves(bool check_or_solve) {
+    bool a = 1;
+    int b = 0;
+    int c = 1;
+    int e = 0;
+    for (int i = 0; i < coordinates_of_zeros.size(); i++) {
+        cout << i << endl;
+        for (int j = c; j < 10; j++) {
+            cout <<"    "<< j << endl;
+            for (int y = 0; y < 9; y++) {
+                cout << "       " << y << endl;
+                if ((board[y][(coordinates_of_zeros.at(i) % 10)] == j) || (board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][y] == j) || (board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10) - ((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10) % 3 + (y - y % 3) / 3][(coordinates_of_zeros.at(i) % 10) - (coordinates_of_zeros.at(i) % 10) % 3 + y % 3] == j)) {
+                    a = 0;
+                    break;
+                }
+            }
+            if (a == 1) {
+                b = j;
+                break;
+            }
+            a = 1;
+        }
+        if (b > 0) {
+            if (i != coordinates_of_zeros.size() - 2) {
+                board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] = b; b = 0; c = 1; CSP;
+            }
+            else if (check_or_solve) {
+                i--; c = board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] + 1; board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] = 0;i--; e++; b = 0;
+            }
+        }
+        else if (i != 0) {
+            i--; c = board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] + 1; board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] = 0;i--; b = 0; CSP;
+        }
+        else if (check_or_solve) {
+            for (int p = 0; p < coordinates_of_zeros.size(); p++) {
+                board[((coordinates_of_zeros.at(p) - coordinates_of_zeros.at(p) % 10) / 10)][(coordinates_of_zeros.at(p) % 10)] = 0;
+            }
+            return e;
+        }
+
+    }
+}
+
+void remembering_zeroes() {
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            if (board[i][j] == 0) {
+                coordinates_of_zeros.push_back(i * 10 + j);
+            }
+        }
+    }
+}
+
+void diagonal(int a)
+{
+    vector<int> change_from = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    int b = 0;
+    for (int i = 0; i < 9; i++) {
+        b = rand() % (9 - i);
+        board[a + (i - i % 3) / 3][a + i % 3] = change_from.at(b);
+        change_from.erase(change_from.begin() + b);
+    }
+    remembering_zeroes();
+}
+
+void prt1()
+{
+    for (int i = 0; i < 3; i++) {
+        diagonal(i * 3);
+    }
+    solving_or_check_for_number_of_solves(0);
+}
+
+int main(){
+    prt1();
+}
