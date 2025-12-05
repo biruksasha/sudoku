@@ -1,0 +1,193 @@
+#include <iostream>
+#include <cstdlib>
+#include <chrono>
+#include <vector>
+using namespace std;
+
+int board[9][9] = { 0 };
+int change_to[9] = { 0 };
+vector<int> coordinates_of_zeros = {};
+
+void print_result()
+{
+    cout << "-------------------------------" << endl;
+    for (int i = 0; i < 9; i++) {
+        cout << "| ";
+        for (int j = 0; j < 9; j++) {
+            if (board[i][j] != 0) {
+                cout << board[i][j] << " ";
+            }
+            else {
+                cout << "* ";
+            }
+            if (j % 3 == 2) {
+                cout << "| ";
+            }
+            else {
+                cout << " ";
+            }
+        }
+        cout << endl;
+        if (i % 3 == 2) { cout << "-------------------------------" << endl; }
+    }
+}
+
+void mixrc(int a)
+{
+    int b = rand() % 6;
+    int c = rand() % 6;
+    int m = 0;
+    for (int i = 0; i < 9; i++) {
+        if (b < 3) {
+            m = board[i][b + a];
+            board[i][b + a] = board[i][(b + 1) % 3 + a];
+            board[i][(b + 1) % 3 + a] = m;
+        }
+        else if (b < 5) {
+            m = board[i][b % 3 + a];
+            board[i][b % 3 + a] = board[i][(b + 1) % 3 + a];
+            board[i][(b + 1) % 3 + a] = board[i][(b + 2) % 3 + a];
+            board[i][(b + 2) % 3 + a] = m;
+        }
+    }
+    for (int i = 0; i < 9; i++) {
+        if (c < 3) {
+            m = board[c + a][i];
+            board[c + a][i] = board[(c + 1) % 3 + a][i];
+            board[(c + 1) % 3 + a][i] = m;
+        }
+        else if (c < 5) {
+            m = board[c % 3 + a][i];
+            board[c % 3 + a][i] = board[(c + 1) % 3 + a][i];
+            board[(c + 1) % 3 + a][i] = board[(c + 2) % 3 + a][i];
+            board[(c + 2) % 3 + a][i] = m;
+        }
+    }
+}
+
+void mixnum() {
+    vector<int> change_from = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    int a = 0;
+    for (int i = 0; i < 9; i++) {
+        a = rand() % (9 - i);
+        change_to[i] = change_from.at(a);
+        change_from.erase(change_from.begin() + a);
+    }
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            board[i][j] = change_to[board[i][j] - 1];
+        }
+    }
+}
+
+int solving_or_check_for_number_of_solves(bool check_or_solve) {
+    bool a = 1;
+    int b = 0;
+    int c = 1;
+    int e = 0;
+    for (int i = 0; i < coordinates_of_zeros.size(); i++) {
+        for (int j = c; j < 10; j++) {
+            for (int y = 0; y < 9; y++) {
+                if ((board[y][(coordinates_of_zeros.at(i) % 10)] == j) || (board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][y] == j) || (board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10) - ((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10) % 3 + (y - y % 3) / 3][(coordinates_of_zeros.at(i) % 10) - (coordinates_of_zeros.at(i) % 10) % 3 + y % 3] == j)) {
+                    a = 0;
+                    break;
+                }
+            }
+            if (a == 1) {
+                b = j;
+                break;
+            }
+            a = 1;
+        }
+        if (b > 0) {
+            if (i != coordinates_of_zeros.size() - 2) {
+                board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] = b; b = 0; c = 1;
+            }
+            else {
+                if (check_or_solve) {
+                    i--; c = board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] + 1; board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] = 0;i--; e++; b = 0;
+                }
+            }
+        }
+        else if (i != 0) {
+            i--; c = board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] + 1; board[((coordinates_of_zeros.at(i) - coordinates_of_zeros.at(i) % 10) / 10)][(coordinates_of_zeros.at(i) % 10)] = 0;i--; b = 0;
+        }
+        else {
+            if (check_or_solve) {
+                for (int p = 0; p < coordinates_of_zeros.size(); p++) {
+                    board[((coordinates_of_zeros.at(p) - coordinates_of_zeros.at(p) % 10) / 10)][(coordinates_of_zeros.at(p) % 10)] = 0;
+                }
+                return e;
+            }
+        }
+
+    }
+}
+
+void deleting() {
+    int row, col, c, d = 0;
+    row = rand() % 9;
+    col = rand() % 9;
+    d = board[row][col];
+    board[row][col] = 0;
+    if (find(coordinates_of_zeros.begin(), coordinates_of_zeros.end(), row * 10 + col) == coordinates_of_zeros.end()) {
+        coordinates_of_zeros.push_back(row * 10 + col);
+        if (coordinates_of_zeros.size() > 3) {
+            c = solving_or_check_for_number_of_solves(1);
+            if (c != 1) {
+                board[row][col] = d;
+            }
+        }
+    }
+}
+
+void remembering_zeroes() {
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            if (board[i][j] == 0) {
+                coordinates_of_zeros.push_back(i * 10 + j);
+            }
+        }
+    }
+}
+
+void prt3()
+{
+    solving_or_check_for_number_of_solves(0);
+}
+
+void prt2()
+{
+    for (int i = 0; i < 30; i++) {
+        deleting();
+    }
+}
+
+void prt1()
+{
+
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            board[i][j] = (j + (i * 3) + ((i - i % 3) / 3)) % 9 + 1;
+        }
+    }
+    for (int i = 0; i < 3; i++) {
+        mixrc(i * 3);
+    }
+    mixnum();
+}
+
+int main() {
+    srand(time(NULL));
+    prt1();
+    cout << "original board of sudoku:" << endl;
+    print_result();
+    cout << endl << endl;
+    prt2();
+    cout << "puzzle sudoku:" << endl;
+    print_result();
+    cout << endl << endl;
+    prt3();
+    cout << "solved sudoku:" << endl;
+    print_result();
+}
